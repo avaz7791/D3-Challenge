@@ -26,15 +26,16 @@ var svg = d3
 //Append an SVG group
 var chartGroup = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-//Select xAxis text
+//Axis selection
 var selectXAxis = "income";
+var selectYAxis = "age";
 
 // Update x-scale depending on the attribute
 function xScale(dataj, selectXAxis){
     //create scales
     var xLinearScale = d3.scaleLinear().domain([d3.min(dataj, d=>d[selectXAxis]) * 0.8, 
                     d3.max(dataj, d=> d[selectXAxis]) * 1.2
-    ]).range([0,Width]);
+    ]).range([0, Width]);
 
     console.log(xLinearScale);
     return xLinearScale;
@@ -45,12 +46,15 @@ function yScale(dataj, selectYAxis){
     //create scales
     var yLinearScale = d3.scaleLinear().domain([d3.min(dataj, d=>d[selectYAxis]) * 0.8, 
                     d3.max(dataj, d=> d[selectYAxis]) * 1.2
-    ]).range([0,Width]);
-    console.log(xLinearScale);
-    return xLinearScale;
+    ]).range([Height, 0]);
+    console.log(yLinearScale);
+    return yLinearScale;
 }
 
-function renderAxes(NewXscale, xAxis){
+
+// ------------------------
+//This section we will use these functions to update the X,Y Axis when they are selected. 
+function XrenderAxes(NewXscale, xAxis){
     var bottomAxis = d3.axisBottom(NewXscale);
 
     xAxis.transition()
@@ -59,29 +63,69 @@ function renderAxes(NewXscale, xAxis){
 
     return xAxis;
 }
+function YrenderAxes(NewYscale, yAxis){
+    var leftAxis = d3.axisBottom(NewYscale);
+
+    yAxis.transition()
+    .duration(1000)
+    .call(leftAxis);
+
+    return yAxis;
+}
+//------------------------
 
 // render circles this function will update the circles
-function renderCircles(circlesGroup, NewXscale, selectXAxis){
+function XrenderCircles(circlesGroup, NewXscale, selectXAxis){
 
     circlesGroup.transition()
         .duration(1000)
-        .attr("cx", d=> NewXscale(d[selectXAxis]));
+        .attr("cx", d=> NewXscale(d[selectXAxis]))
+        .attr("dx", d=> NewXscale(d[selectXAxis]));
+
+    return circlesGroup;
+}
+function YrenderCircles(circlesGroup, NewYscale, selectYAxis){
+
+    circlesGroup.transition()
+        .duration(1000)
+        .attr("cy", d=> NewXscale(d[selectYAxis]))
+        .attr("dy", d=> NewXscale(d[selectYAxis]));
 
     return circlesGroup;
 }
 
-// Update ToolTip Income, Obesity, healthcare
+
+// Update Y ToolTip Income, Obesity, healthcare
+// MOE: margin of error
+// current data set includes data on poverty,povertyMoe,age,ageMoe,
+// income,incomeMoe,healthcare,healthcareLow,healthcareHigh,
+// obesity,obesityLow,obesityHigh,smokes,smokesLow,smokesHigh
 function upToolTip(selectXAxis, circlesGroup) {
-    var label;
+
+//Add logic to update the label for the axis depending on what was selected.    
+    var label_X;
+    var label_Y;
+// X Axis tool tip 
     if (selectXAxis === "income"){
-        label = "Income";
+        label_X = "Income";
     }
     else if (selectXAxis === "obesity"){
-        label = "Obesity";
+        label_X = "Obesity";
     }
     else {
-        label ="healthcare";
+        label_X ="smokes";
     }
+// Y Axis tool tip 
+    if (selectYAxis === "age"){
+        label_Y = "Age";
+    }
+    else if (selectXAxis === "obesity"){
+        label_Y = "Obesity";
+    }
+    else {
+        label_Y ="poverty";
+    }
+
 
     var toolTip = d3.tip()
         .attr("class", "tooltip")
@@ -102,6 +146,18 @@ function upToolTip(selectXAxis, circlesGroup) {
     return circlesGroup;
 }
 
+function xTextUpdate(circlesGroup, NewXscale, selectXAxis){
+    circlesGroup.transition()
+        .duration(1000)
+        .attr("dx", d=> NewXscale(d[selectXAxis]));
+    return circlesGroup;
+}
+function yTextUpdate(circlesGroup, NewYscale, selectYAxis){
+    circlesGroup.transition()
+        .duration(1000)
+        .attr("dy", d=> NewXscale(d[selectYAxis]));
+    return circlesGroup;
+}
 
 //read data.csv file and run all code below
 d3.csv("assets/data/data.csv").then(function(dataj, err){
