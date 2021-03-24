@@ -23,4 +23,32 @@ var svg = d3
   .attr("width", svgWidth)
   .attr("height", svgHeight);
 
-  
+//Append an SVG group
+var chartGroup = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+//read data.csv file and run all code below
+d3.csv("./data/data.csv").then(function(dataj){
+
+// state abbr 
+// Add the state abbrebiation for chart
+stabbr = []
+
+// MOE: margin of error
+// current data set includes data on poverty,povertyMoe,age,ageMoe,
+// income,incomeMoe,healthcare,healthcareLow,healthcareHigh,
+// obesity,obesityLow,obesityHigh,smokes,smokesLow,smokesHigh
+    dataj.forEach(function(datacsv){
+        datacsv.age = +datacsv.age;
+        datacsv.income = +datacsv.income;
+        datacsv.obesity = +datacsv.obesity;
+        datacsv.obesityLow = +datacsv.obesityLow;
+        datacsv.obesityHigh = +datacsv.obesityHigh;
+
+    });
+
+
+
+
+
+
+});
