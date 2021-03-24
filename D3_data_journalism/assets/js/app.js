@@ -93,7 +93,8 @@ function upToolTip(selectXAxis, circlesGroup) {
 
 
 //read data.csv file and run all code below
-d3.csv("assets/data/data.csv").then(function(dataj){
+d3.csv("assets/data/data.csv").then(function(dataj, err){
+    if(err) throw err;
    
     console.log(dataj);
 // state abbr 
@@ -107,18 +108,20 @@ d3.csv("assets/data/data.csv").then(function(dataj){
     dataj.forEach(function(datacsv){
         datacsv.age = +datacsv.age;
         datacsv.income = +datacsv.income;
-   //     datacsv.obesity = +datacsv.obesity;
-   //     datacsv.obesityLow = +datacsv.obesityLow;
+        datacsv.obesity = +datacsv.obesity;
+        datacsv.healthcare = +datacsv.healthcare;
    //     datacsv.obesityHigh = +datacsv.obesityHigh;
         stabbr.push(datacsv.abbr)
     });
 
-    var xLinearScale = d3.scaleLinear()
-        .domain([25, d3.max(dataj, x => x.age)])
-        .range([0, Width]);
+    var xLinearScale = xScale(dataj, selectXAxis);
+
+    // var xLinearScale = d3.scaleLinear()
+    //     .domain([25, d3.max(dataj, x => x.age)])
+    //     .range([0, Width]);
 
     var yLinearScale = d3.scaleLinear()
-        .domain([0, d3.max(dataj, x => x.o)])
+        .domain([0, d3.max(dataj, x => x.age)])
         .range([Height,0]);
 
      // Create initial axis functions
@@ -135,33 +138,58 @@ d3.csv("assets/data/data.csv").then(function(dataj){
     chartGroup.append("g")
         .call(leftAxis); 
 
-        var circlesGroup = chartGroup.selectAll("circle")
+    var circlesGroup = chartGroup.selectAll("circle")
         .data(dataj)
         .enter()
         .append("circle")
-        .attr("cx", d => xLinearScale(d.age))
-        .attr("cy", d => yLinearScale(d.income))
-        //.attr("cy", d => yLinearScale(d.obesity))
+        .attr("cx", d => xLinearScale(d[selectXAxis]))
+        .attr("cy", d => yLinearScale(d.age))
         .attr("r", "15")
         .attr("class", "stateCircle")
-        .attr("opacity", ".5")
+        .attr("fill","blue")
+        .attr("opacity", ".5");
 
-    circlesGroup.append("text")
-        .attr("class", "stateText")
-        .text(function(d){return d.stabbr})
+    var labelsGroup = chartGroup.append("g")
+        .append("text")
+        .attr("transform", `translate(${Width / 2}, ${Height + Height + 30})`)
+        .text("Avg. Age by State");
+
+    var IncomeLabel = labelsGroup.append("text")
+        .attr("x",0)
+        .attr("y",20)
+        .attr("value", "income")
+        .classed("active",true);
+        //.text("Income by age");
+
+    var ObesityLabel = labelsGroup.append("text")
+        .attr("x",0)
+        .attr("y",20)
+        .attr("value", "obesity")
+        .classed("active",true);
+        //.text("obesity by age");    
+
+    var HealthcareLabel = labelsGroup.append("text")
+        .attr("x",0)
+        .attr("y",20)
+        .attr("value", "healthcare")
+        .classed("active",true);
+        //.text("healthcare by age");    
 
     chartGroup.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left + 40)
-        .attr("x", 0 - (Height / 2))
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (height / 2))
         .attr("dy", "1em")
-        .attr("class", "aText")
-        .text("Avg. Obesity by State")
+        .classed("axis-text", true)
+        .text("Age by State");
+    
+    var circlesGroup = upToolTip(selectXAxis, circlesGroup);
 
-    chartGroup.append("text")
-        .attr("transform", `translate(${Width / 2}, ${Height + margin.top + 30})`)
-        .attr("class", "aText")
-        .text("Avg. Age by State");
+    
+
+
+
+
 }).catch(function(error){
     console.log(error);
 });
