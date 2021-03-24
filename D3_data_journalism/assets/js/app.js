@@ -49,6 +49,16 @@ function renderAxes(NewXscale, xAxis){
     return xAxis;
 }
 
+// render circles this function will update the circles
+function renderCircles(circlesGroup, NewXscale, selectXAxis){
+
+    circlesGroup.transition()
+        .duration(1000)
+        .attr("cx", d=> NewXscale(d[chosenXAxis]));
+
+    return circlesGroup;
+}
+
 
 //read data.csv file and run all code below
 d3.csv("assets/data/data.csv").then(function(dataj){
