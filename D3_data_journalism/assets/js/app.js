@@ -26,12 +26,37 @@ var svg = d3
 //Append an SVG group
 var chartGroup = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-//read data.csv file and run all code below
-d3.csv("./data/data.csv").then(function(dataj){
+//Select xAxis text
+var selectXAxis = "income";
 
+// Update x-scale depending on the attribute
+function xScale(dataj, selectXAxis){
+    //create scales
+    var xLinearScale = d3.scaleLinear().domain([d3.min(dataj, d=>d[selectXAxis]) * 0.8, 
+                    d3.max(dataj, d=> d[chosenXAxis]) * 1.2
+    ]).range([0,Width]);
+
+    return xLinearScale;
+}
+
+function renderAxes(NewXscale, xAxis){
+    var bottomAxis = d3.axisBottom(NewXscale);
+
+    xAxis.transition()
+    .duration(1000)
+    .call(bottomAxis);
+
+    return xAxis;
+}
+
+
+//read data.csv file and run all code below
+d3.csv("assets/data/data.csv").then(function(dataj){
+   
+    console.log(dataj);
 // state abbr 
 // Add the state abbrebiation for chart
-stabbr = []
+    stabbr = []
 
 // MOE: margin of error
 // current data set includes data on poverty,povertyMoe,age,ageMoe,
@@ -39,11 +64,11 @@ stabbr = []
 // obesity,obesityLow,obesityHigh,smokes,smokesLow,smokesHigh
     dataj.forEach(function(datacsv){
         datacsv.age = +datacsv.age;
-   //     datacsv.income = +datacsv.income;
-        datacsv.obesity = +datacsv.obesity;
+        datacsv.income = +datacsv.income;
+   //     datacsv.obesity = +datacsv.obesity;
    //     datacsv.obesityLow = +datacsv.obesityLow;
    //     datacsv.obesityHigh = +datacsv.obesityHigh;
-        stabbr.push(data.abbr)
+        stabbr.push(datacsv.abbr)
     });
 
     var xLinearScale = d3.scaleLinear()
@@ -61,12 +86,40 @@ stabbr = []
      // append x axis
     var xAxis = chartGroup.append("g")
         .classed("x-axis", true)
-        .attr("transform", `translate(0, ${height})`)
+        .attr("transform", `translate(0, ${Height})`)
         .call(bottomAxis);
 
     // append y axis
     chartGroup.append("g")
         .call(leftAxis); 
 
+        var circlesGroup = chartGroup.selectAll("circle")
+        .data(dataj)
+        .enter()
+        .append("circle")
+        .attr("cx", d => xLinearScale(d.age))
+        .attr("cy", d => yLinearScale(d.income))
+        //.attr("cy", d => yLinearScale(d.obesity))
+        .attr("r", "15")
+        .attr("class", "stateCircle")
+        .attr("opacity", ".5")
 
+    circlesGroup.append("text")
+        .attr("class", "stateText")
+        .text(function(d){return d.stabbr})
+
+    chartGroup.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 40)
+        .attr("x", 0 - (Height / 2))
+        .attr("dy", "1em")
+        .attr("class", "aText")
+        .text("Avg. Obesity by State")
+
+    chartGroup.append("text")
+        .attr("transform", `translate(${Width / 2}, ${Height + margin.top + 30})`)
+        .attr("class", "aText")
+        .text("Avg. Age by State");
+}).catch(function(error){
+    console.log(error);
 });
