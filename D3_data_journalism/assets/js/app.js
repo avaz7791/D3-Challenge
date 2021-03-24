@@ -129,9 +129,15 @@ function upToolTip(selectXAxis, circlesGroup) {
 
     var toolTip = d3.tip()
         .attr("class", "tooltip")
-        .offset([0, 0])
+        .offset([80, -60])
+        .style("color", "black")
+        .style("background", 'grey')
+//        .style("border", "solid")
+        .style("border-width", "1px")
+        .style("border-radius", "5px")
+        .style("padding", "5px")
         .html(function(d){
-            return(`${d.state}<br>${label} ${d[selectXAxis]}`);
+            return(`${d.state}<br>${label_X} ${d[selectXAxis]}%<br>${label_Y} ${d[selectYAxis]}`);
         });
 
     circlesGroup.call(toolTip);
@@ -140,6 +146,7 @@ function upToolTip(selectXAxis, circlesGroup) {
         toolTip.show(dataj);
 
     })
+    // hide the box when the mouse cursor moves
         .on("mouseout", function(dataj, index){
             toolTip.hide(dataj);
         });
@@ -177,11 +184,13 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
         datacsv.income = +datacsv.income;
         datacsv.obesity = +datacsv.obesity;
         datacsv.healthcare = +datacsv.healthcare;
-   //     datacsv.obesityHigh = +datacsv.obesityHigh;
-    //    stabbr.push(datacsv.abbr)
+        datacsv.smokes = +datacsv.smokes;
+        datacsv.poverty = +datacsv.poverty;
+        
     });
 
     var xLinearScale = xScale(dataj, selectXAxis);
+    var yLinearScale = yScale(dataj, selectYAxis);
 
     // var xLinearScale = d3.scaleLinear()
     //     .domain([25, d3.max(dataj, x => x.age)])
@@ -197,12 +206,12 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
 
      // append x axis
     var xAxis = chartGroup.append("g")
-        .classed("x-axis", true)
+        //.classed("x-axis", true)
         .attr("transform", `translate(0, ${Height})`)
         .call(bottomAxis);
 
     // append y axis
-    chartGroup.append("g")
+    var yAxis= chartGroup.append("g")
         .call(leftAxis); 
 
     var circlesGroup = chartGroup.selectAll("circle")
@@ -210,7 +219,7 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
         .enter()
         .append("circle")
         .attr("cx", d => xLinearScale(d[selectXAxis]))
-        .attr("cy", d => yLinearScale(d.age))
+        .attr("cy", d => yLinearScale(d[selectYAxis]))
         .attr("r", "15")
         .attr("class", "stateCircle")
         .attr("fill","blue")
