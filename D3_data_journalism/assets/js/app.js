@@ -39,16 +39,34 @@ stabbr = []
 // obesity,obesityLow,obesityHigh,smokes,smokesLow,smokesHigh
     dataj.forEach(function(datacsv){
         datacsv.age = +datacsv.age;
-        datacsv.income = +datacsv.income;
+   //     datacsv.income = +datacsv.income;
         datacsv.obesity = +datacsv.obesity;
-        datacsv.obesityLow = +datacsv.obesityLow;
-        datacsv.obesityHigh = +datacsv.obesityHigh;
-
+   //     datacsv.obesityLow = +datacsv.obesityLow;
+   //     datacsv.obesityHigh = +datacsv.obesityHigh;
+        stabbr.push(data.abbr)
     });
 
+    var xLinearScale = d3.scaleLinear()
+        .domain([25, d3.max(dataj, x => x.age)])
+        .range([0, Width]);
 
+    var yLinearScale = d3.scaleLinear()
+        .domain([0, d3.max(dataj, x => x.o)])
+        .range([Height,0]);
 
+     // Create initial axis functions
+    var bottomAxis = d3.axisBottom(xLinearScale);
+    var leftAxis = d3.axisLeft(yLinearScale);
 
+     // append x axis
+    var xAxis = chartGroup.append("g")
+        .classed("x-axis", true)
+        .attr("transform", `translate(0, ${height})`)
+        .call(bottomAxis);
+
+    // append y axis
+    chartGroup.append("g")
+        .call(leftAxis); 
 
 
 });
