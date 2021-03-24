@@ -54,8 +54,40 @@ function renderCircles(circlesGroup, NewXscale, selectXAxis){
 
     circlesGroup.transition()
         .duration(1000)
-        .attr("cx", d=> NewXscale(d[chosenXAxis]));
+        .attr("cx", d=> NewXscale(d[selectXAxis]));
 
+    return circlesGroup;
+}
+
+// Update ToolTip Income, Obesity, healthcare
+function upToolTip(selectXAxis, circlesGroup) {
+    var label;
+    if (selectXAxis === "income"){
+        label = "Income";
+    }
+    else if (selectXAxis === "obesity"){
+        label = "Obesity";
+    }
+    else {
+        label ="healthcare";
+    }
+
+    var ToolTip = d3.tip()
+        .attr("class", "tooltip")
+        .offset([80, -60])
+        .html(function(d){
+            return(`${d.state}<br>${label} ${d[selectXAxis]}`);
+        });
+
+    circlesGroup.call(ToolTip);
+
+    circlesGroup.on("mouseover", function(dataj){
+        ToolTip.show(dataj);
+
+    })
+        .on("mouseout", function(dataj, index){
+            ToolTip.hide(data);
+        });
     return circlesGroup;
 }
 
