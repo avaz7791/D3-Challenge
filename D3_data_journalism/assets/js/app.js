@@ -125,7 +125,7 @@ function upToolTip(selectXAxis,selectYAxis, circlesGroup) {
         label_X ="Obesity ";
     }
 
-
+    // got some errors for my tool tip but was not able to resolve
     var toolTip = d3.tip()
         .attr("class", "tooltip")
         .offset([80, -55])
