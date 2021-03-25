@@ -199,7 +199,6 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
 
      // append x axis
     var xAxis = chartGroup.append("g")
-        
         .attr("transform", `translate(0, ${Height})`)
         .call(bottomAxis);
 
@@ -223,7 +222,7 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
 
     var circlesGrpTxt = circlesGrp.append("text")
         .text(d=> d.abbr) //abbribiated state
-        .attr("dx", d=> xLinearScale(d[selectXAxis]))
+        .attr("dx", d=> xLinearScale(d[selectXAxis])-10)
         .attr("dy", d=> yLinearScale(d[selectYAxis])+(4));
         
         
@@ -238,14 +237,14 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
         .attr("x",0)
         .attr("y",15)
         .attr("value", "age")
-        .text("Age");
+        .text("Age %");
         //.text("Income by age");
 
     var incomelbl = xAxis_lblGrp.append("text")
         .attr("x",0)
         .attr("y",35)
         .attr("value", "income")
-        .text("Income");
+        .text("Income $");
 
     var obesitylbl = xAxis_lblGrp.append("text")
         .attr("x",0)
@@ -269,30 +268,21 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
         
     
     var smokeslbl = yAxis_lblGrp.append("text")
-        .attr("x",-(Height/2))
         .attr("y",-55)
+        .attr("x",-(Height/2))
         .attr("dy","1em")
         .attr("value", "smokes")
         .text("smokes");
     
     var povertylbl = yAxis_lblGrp.append("text")
+        .attr("y",-35)    
         .attr("x",-(Height/2))
-        .attr("y",-35)
         .attr("dy","1em")
         .attr("value", "poverty")
         .text("Poverty");
         
-               
-
-    // Y axis
-    chartGroup.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x", 0 - (Height / 2))
-        .attr("dy", "1em");
-        //.text("State");
     
-    circlesGroup = upToolTip(selectXAxis,selectYAxis, circlesGrp);
+    circlesGrp = upToolTip(selectXAxis, selectYAxis, circlesGrp);
 
     // X-axis event
     xAxis_lblGrp.selectAll("text").on("click", function() {
@@ -310,10 +300,10 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
       // updates x axis with transition
       xAxis = XrenderAxes(xLinearScale, xAxis);
 
-      circles = XrenderAxes(xLinearScale, xAxis);
+      circles = XrenderCircles(circles, xLinearScale, selectXAxis);
 
       // updates circles with new x values
-      circlesTxt = XrenderCircles(circlesGrpTxt, xLinearScale, selectXAxis);
+      circlesTxt = xTextUpdate(circlesGrpTxt, xLinearScale, selectXAxis);
 
       // updates tooltips with new info
       circlesGroupTT = upToolTip(selectXAxis, selectYAxis, circlesGrp);
@@ -360,26 +350,25 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
     }
   });
 
-  // y-axis event
+  // The Y-axis event
   yAxis_lblGrp.selectAll("text").on("click", function() {
     // get value of selection
     var value = d3.select(this).attr("value");
     if (value !== selectYAxis) {
 
-      // replaces chosenXAxis with value
+      // replaces chosenYAxis with value
       selectYAxis = value;
       console.log(selectYAxis) // check selection
 
-     // updates x scale
+     // updates Y scale
       yLinearScale = yScale(dataj, selectYAxis);
 
-      // updates x axis with transition
-      yAxis = YrenderAxes(xLinearScale, xAxis);
+     yAxis = YrenderAxes(yLinearScale, yAxis);
 
-      circles = YrenderAxes(xLinearScale, xAxis);
+      circles = YrenderCircles(circles, yLinearScale, selectYAxis);
 
       // updates circles with new x values
-      circlesTxt = YrenderCircles(circlesGrpTxt, xLinearScale, selectYAxis);
+      circlesTxt = yTextUpdate(circlesGrpTxt, yLinearScale, selectYAxis);
 
       // updates tooltips with new info
       circlesGroupTT = upToolTip(selectYAxis, selectYAxis, circlesGrp);
@@ -426,7 +415,7 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
     }
   });
 
-
+//cought many errors isshh!
 }).catch(function(error){
     console.log(error);
 });
