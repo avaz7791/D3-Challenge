@@ -1,6 +1,6 @@
 // @TODO: YOUR CODE HERE!
+// Avazquez
 //Initialize variables for svg
-
 var svgWidth = 800;
 var svgHeight = 550;
 
@@ -94,6 +94,7 @@ function YrenderCircles(circlesGroup, NewYscale, selectYAxis){
     return circlesGroup;
 }
 
+// Selected a few measures to compare. 
 
 // Update Y ToolTip Income, Obesity, healthcare
 // MOE: margin of error
