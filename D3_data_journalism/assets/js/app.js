@@ -131,7 +131,7 @@ function upToolTip(selectXAxis,selectYAxis, circlesGroup) {
         .offset([80, -55])
         .style("color", "black")
         .style("background", 'grey')
-//        .style("border", "solid")
+
         .style("border-width", "1px")
         .style("border-radius", "5px")
         .style("padding", "5px")
