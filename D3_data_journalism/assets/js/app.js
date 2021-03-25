@@ -7,9 +7,9 @@ var svgHeight = 450;
 // Initialize margin varible
 var margin ={
     top: 20,
-    bottom: 60,
+    bottom: 35,
     right: 40,
-    left: 60
+    left: 80
 };
 
 var Width = svgWidth - margin.left - margin.right;
@@ -21,18 +21,18 @@ var svg = d3
   .select("#scatter")
   .append("svg")
   .attr("width", svgWidth)
-  .attr("height", svgHeight);
+  .attr("height", svgHeight +25);
 
 //Append an SVG group
 var chartGroup = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
 //Axis selection
-var selectXAxis = "income";
-var selectYAxis = "age";
+var selectXAxis = "age";
+var selectYAxis = "income";
 
 // Update x-scale depending on the attribute
 function xScale(dataj, selectXAxis){
-    //create scales
+    //create scales for x axis with extra room
     var xLinearScale = d3.scaleLinear().domain([d3.min(dataj, d=>d[selectXAxis]) * 0.8, 
                     d3.max(dataj, d=> d[selectXAxis]) * 1.2
     ]).range([0, Width]);
@@ -41,9 +41,9 @@ function xScale(dataj, selectXAxis){
     return xLinearScale;
 }
 
-// Update x-scale depending on the attribute
+// Update y-scale depending on the attribute
 function yScale(dataj, selectYAxis){
-    //create scales
+    //create scales for y axis with extra room
     var yLinearScale = d3.scaleLinear().domain([d3.min(dataj, d=>d[selectYAxis]) * 0.8, 
                     d3.max(dataj, d=> d[selectYAxis]) * 1.2
     ]).range([Height, 0]);
@@ -100,36 +100,36 @@ function YrenderCircles(circlesGroup, NewYscale, selectYAxis){
 // current data set includes data on poverty,povertyMoe,age,ageMoe,
 // income,incomeMoe,healthcare,healthcareLow,healthcareHigh,
 // obesity,obesityLow,obesityHigh,smokes,smokesLow,smokesHigh
-function upToolTip(selectXAxis, circlesGroup) {
+function upToolTip(selectXAxis,selectYAxis, circlesGroup) {
 
 //Add logic to update the label for the axis depending on what was selected.    
     var label_X;
     var label_Y;
-// X Axis tool tip 
-    if (selectXAxis === "income"){
-        label_X = "Income";
-    }
-    else if (selectXAxis === "obesity"){
-        label_X = "Obesity";
-    }
-    else {
-        label_X ="smokes";
-    }
 // Y Axis tool tip 
-    if (selectYAxis === "age"){
-        label_Y = "Age";
+    if (selectYAxis === "income"){
+        label_Y = "Income ";
     }
-    else if (selectXAxis === "obesity"){
-        label_Y = "Obesity";
+    else if (selectYAxis === "obesity"){
+        label_Y = "Obesity ";
     }
     else {
-        label_Y ="poverty";
+        label_Y ="Smokes ";
+    }
+// X Axis tool tip 
+    if (selectXAxis === "age"){
+        label_X = "Age ";
+    }
+    else if (selectXAxis === "healthcare"){
+        label_X = "Healthcare ";
+    }
+    else {
+        label_X ="Poverty ";
     }
 
 
     var toolTip = d3.tip()
         .attr("class", "tooltip")
-        .offset([80, -60])
+        .offset([80, -55])
         .style("color", "black")
         .style("background", 'grey')
 //        .style("border", "solid")
@@ -137,7 +137,8 @@ function upToolTip(selectXAxis, circlesGroup) {
         .style("border-radius", "5px")
         .style("padding", "5px")
         .html(function(d){
-            return(`${d.state}<br>${label_X} ${d[selectXAxis]}%<br>${label_Y} ${d[selectYAxis]}`);
+            // state for full name or abbr for abbrebiated state
+            return(`${d.state}<br>${label_X} ${d[selectXAxis]}%<br>${label_Y} ${d[selectYAxis]}%`);
         });
 
     circlesGroup.call(toolTip);
@@ -145,9 +146,8 @@ function upToolTip(selectXAxis, circlesGroup) {
     circlesGroup.on("mouseover", function(dataj){
         toolTip.show(dataj);
 
-    })
+    }).on("mouseout", function(dataj, index){
     // hide the box when the mouse cursor moves
-        .on("mouseout", function(dataj, index){
             toolTip.hide(dataj);
         });
     return circlesGroup;
@@ -162,7 +162,7 @@ function xTextUpdate(circlesGroup, NewXscale, selectXAxis){
 function yTextUpdate(circlesGroup, NewYscale, selectYAxis){
     circlesGroup.transition()
         .duration(1000)
-        .attr("dy", d=> NewXscale(d[selectYAxis]));
+        .attr("dy", d=> NewYscale(d[selectYAxis]));
     return circlesGroup;
 }
 
@@ -196,9 +196,9 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
     //     .domain([25, d3.max(dataj, x => x.age)])
     //     .range([0, Width]);
 
-    var yLinearScale = d3.scaleLinear()
-        .domain([0, d3.max(dataj, x => x.age)])
-        .range([Height,0]);
+    // var yLinearScale = d3.scaleLinear()
+    //     .domain([0, d3.max(dataj, x => x.age)])
+    //     .range([Height,0]);
 
      // Create initial axis functions
     var bottomAxis = d3.axisBottom(xLinearScale);
@@ -214,50 +214,90 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
     var yAxis= chartGroup.append("g")
         .call(leftAxis); 
 
-    var circlesGroup = chartGroup.selectAll("circle")
+    var circlesGrp = chartGroup.selectAll("circle")
         .data(dataj)
         .enter()
-        .append("circle")
+        .append("g")
+        // .attr("cx", d => xLinearScale(d[selectXAxis]))
+        // .attr("cy", d => yLinearScale(d[selectYAxis]))
+        // .attr("r", "15")
+        // .attr("class", "stateCircle")
+        // .attr("fill","blue")
+        // .attr("opacity", ".5");
+    
+    var circles = circlesGrp.append("circle")
         .attr("cx", d => xLinearScale(d[selectXAxis]))
         .attr("cy", d => yLinearScale(d[selectYAxis]))
         .attr("r", "15")
         .attr("class", "stateCircle")
         .attr("fill","blue")
         .attr("opacity", ".5");
+    
 
-    var labelsGroup = chartGroup.append("g")
-        .append("text")
-        .attr("transform", `translate(${Width / 2}, ${Height + 30})`)
-        .text("Avg. Age by State");
+    var circlesGrpTxt = circlesGrp.append("text")
+        .text(d=> d.abbr) //abbribiated state
+        .attr("dx", d=> xLinearScale(d[selectXAxis]))
+        .attr("dy", d=> yLinearScale(d[selectYAxis])+(10/3))
+        .classed('stateText', true);
 
-    var IncomeLabel = labelsGroup.append("text")
+        // X Label
+    var xAxis_lblGrp = chartGroup.append("g")
+        //.append("text")
+        .attr("transform", `translate(${Width / 2}, ${Height + 30})`) ;
+        //.text("age");
+
+    var Agelbl = xAxis_lblGrp.append("text")
         .attr("x",0)
-        .attr("y",20)
+        .attr("y",15)
+        .attr("value", "age")
+        .classed("active",true);
+        //.text("Income by age");
+
+    var Agelbl = xAxis_lblGrp.append("text")
+        .attr("x",0)
+        .attr("y",35)
+        .attr("value", "age")
+        .classed("active",true);
+
+        var Agelbl = xAxis_lblGrp.append("text")
+        .attr("x",0)
+        .attr("y",15)
+        .attr("value", "age")
+        .classed("active",true);
+    var yAxis_lblGrp = chartGroup.append("g")
+        //.append("text")
+        .attr("transform", "rotate(-90") ;
+        //.text("age");
+
+    var Incomelbl = yAxis_lblGrp.append("text")
+        .attr("x",0)
+        .attr("y",15)
         .attr("value", "income")
         .classed("active",true);
         //.text("Income by age");
 
-    var ObesityLabel = labelsGroup.append("text")
+    var Obesitylbl = yAxis_lblGrp.append("text")
         .attr("x",0)
-        .attr("y",20)
+        .attr("y",35)
         .attr("value", "obesity")
         .classed("active",true);
         //.text("obesity by age");    
 
-    var HealthcareLabel = labelsGroup.append("text")
+    var Healthcarelbl = yAxis_lblGrp.append("text")
         .attr("x",0)
-        .attr("y",20)
+        .attr("y",55)
         .attr("value", "healthcare")
         .classed("active",true);
         //.text("healthcare by age");    
 
+    // Y axis
     chartGroup.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
         .attr("x", 0 - (Height / 2))
         .attr("dy", "1em")
         .classed("axis-text", true)
-        .text("Age by State");
+        .text("State");
     
     var circlesGroup = upToolTip(selectXAxis, circlesGroup);
 
@@ -283,7 +323,7 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
       circlesGroup = renderCircles(circlesGroup, xLinearScale, selectXAxis);
 
       // updates tooltips with new info
-      circlesGroup = updateToolTip(selectXAxis, circlesGroup);
+      circlesGroupTT = upToolTip(selectXAxis, selectYAxis, circlesGroup);
 
       // changes classes to change bold text
       if (selectXAxis === "income") {
