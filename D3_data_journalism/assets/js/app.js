@@ -64,7 +64,7 @@ function XrenderAxes(NewXscale, xAxis){
     return xAxis;
 }
 function YrenderAxes(NewYscale, yAxis){
-    var leftAxis = d3.axisBottom(NewYscale);
+    var leftAxis = d3.axisLeft(NewYscale);
 
     yAxis.transition()
     .duration(1000)
@@ -88,8 +88,8 @@ function YrenderCircles(circlesGroup, NewYscale, selectYAxis){
 
     circlesGroup.transition()
         .duration(1000)
-        .attr("cy", d=> NewXscale(d[selectYAxis]))
-        .attr("dy", d=> NewXscale(d[selectYAxis]));
+        .attr("cy", d=> NewYscale(d[selectYAxis]))
+        .attr("dy", d=> NewYscale(d[selectYAxis])+4);
 
     return circlesGroup;
 }
@@ -101,26 +101,24 @@ function YrenderCircles(circlesGroup, NewYscale, selectYAxis){
 // income,incomeMoe,healthcare,healthcareLow,healthcareHigh,
 // obesity,obesityLow,obesityHigh,smokes,smokesLow,smokesHigh
 function upToolTip(selectXAxis,selectYAxis, circlesGroup) {
-
-
 //Add logic to update the label for the axis depending on what was selected.    
     var label_X;
     var label_Y;
 // Y Axis tool tip 
     if (selectYAxis === "healthcare"){
-        label_Y = "Healthcare ";
+        label_Y = "Healthcare";
     }
     else if (selectYAxis === "smokes"){
-        label_Y = "Smokes ";
+        label_Y = "Smokes";
     }
     else {
-        label_Y ="poverty ";
+        label_Y ="poverty";
     }
 // X Axis tool tip 
     if (selectXAxis === "age"){
         label_X = "Age ";
     }
-    else if (selectXAxis === "Income"){
+    else if (selectXAxis === "income"){
         label_X = "Income ";
     }
     else {
@@ -139,15 +137,14 @@ function upToolTip(selectXAxis,selectYAxis, circlesGroup) {
         .style("padding", "5px")
         .html(function(d){
             // state for full name or abbr for abbrebiated state
-            return(`${d.state}<br>${label_X} ${d[selectXAxis]}%<br>${label_Y} ${d[selectYAxis]}%`);
+            return(`${d.state}<br>${label_X} ${d[selectXAxis]} <br>${label_Y} ${d[selectYAxis]} `);
         });
 
     circlesGroup.call(toolTip);
 
-    circlesGroup.on("mouseover", function(dataj){
+    circlesGroup.on("mouseover", function(dataj){  
         toolTip.show(dataj);
-
-    }).on("mouseout", function(dataj, index){
+    }).on("mouseout", function(dataj, i){
     // hide the box when the mouse cursor moves
             toolTip.hide(dataj);
         });
@@ -172,7 +169,7 @@ function yTextUpdate(circlesGroup, NewYscale, selectYAxis){
 d3.csv("assets/data/data.csv").then(function(dataj, err){
     if(err) throw err;
    
-   // console.log(dataj);
+   console.log(dataj);
 // state abbr 
 // Add the state abbrebiation for chart
    // stabbr = []
@@ -202,7 +199,7 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
 
      // append x axis
     var xAxis = chartGroup.append("g")
-        //.classed("x-axis", true)
+        
         .attr("transform", `translate(0, ${Height})`)
         .call(bottomAxis);
 
@@ -214,12 +211,7 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
         .data(dataj)
         .enter()
         .append("g")
-        // .attr("cx", d => xLinearScale(d[selectXAxis]))
-        // .attr("cy", d => yLinearScale(d[selectYAxis]))
-        // .attr("r", "15")
-        // .attr("class", "stateCircle")
-        // .attr("fill","blue")
-        // .attr("opacity", ".5");
+        
     
     var circles = circlesGrp.append("circle")
         .attr("cx", d => xLinearScale(d[selectXAxis]))
@@ -238,7 +230,7 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
     // X axis general Label selector
     var xAxis_lblGrp = chartGroup.append("g")
         //.append("text")
-        .attr("transform", `translate(${Width / 2}, ${Height + 30})`) ;
+        .attr("transform", `translate(${Width / 2}, ${Height + 10})`) ;
         
 
     // X Alternations
@@ -271,7 +263,7 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
     var healthcarelbl = yAxis_lblGrp.append("text")
         .attr("x",-(Height/2))
         .attr("y",-70)
-        .attr("dy","lem")
+        .attr("dy","1em") //1em is equal to 12pt. 
         .attr("value", "healthcare")
         .text("Healthcare");
         
@@ -279,14 +271,14 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
     var smokeslbl = yAxis_lblGrp.append("text")
         .attr("x",-(Height/2))
         .attr("y",-55)
-        .attr("dy","lem")
+        .attr("dy","1em")
         .attr("value", "smokes")
         .text("smokes");
     
     var povertylbl = yAxis_lblGrp.append("text")
         .attr("x",-(Height/2))
         .attr("y",-35)
-        .attr("dy","lem")
+        .attr("dy","1em")
         .attr("value", "poverty")
         .text("Poverty");
         
@@ -297,7 +289,7 @@ d3.csv("assets/data/data.csv").then(function(dataj, err){
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
         .attr("x", 0 - (Height / 2))
-        .attr("dy", "lem");
+        .attr("dy", "1em");
         //.text("State");
     
     circlesGroup = upToolTip(selectXAxis,selectYAxis, circlesGrp);
